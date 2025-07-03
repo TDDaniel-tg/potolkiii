@@ -1,0 +1,12 @@
+# Переменные окружения для Railway
+# Скопируйте эти переменные в Railway Variables
+
+BOT_TOKEN=YOUR_BOT_TOKEN_HERE
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
+
+# Опциональные переменные (для YooKassa платежей)
+# YOOKASSA_SHOP_ID=your_shop_id
+# YOOKASSA_SECRET_KEY=your_secret_key
+
+# Базовые настройки (уже настроены в коде)
+# DATABASE_URL=sqlite:///bot.db 
