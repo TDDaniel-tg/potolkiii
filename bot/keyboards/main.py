@@ -57,6 +57,12 @@ def get_calculation_type_keyboard() -> InlineKeyboardMarkup:
     )
     builder.row(
         InlineKeyboardButton(
+            text="🏠 Натяжные потолки",
+            callback_data="calc_type:ceiling"
+        )
+    )
+    builder.row(
+        InlineKeyboardButton(
             text="❌ Отмена",
             callback_data="cancel"
         )
@@ -241,12 +247,277 @@ def get_cancel_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_back_to_menu_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура возврата в главное меню"""
+    """Кнопка возврата в главное меню"""
     builder = InlineKeyboardBuilder()
     
     builder.row(
         InlineKeyboardButton(
-            text="🏠 В главное меню",
+            text="🏠 Главное меню",
+            callback_data="main_menu"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+# ========== КЛАВИАТУРЫ ДЛЯ НАТЯЖНЫХ ПОТОЛКОВ ==========
+
+def get_profile_type_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора типа профиля"""
+    builder = InlineKeyboardBuilder()
+    
+    for key, value in settings.PROFILE_TYPES.items():
+        builder.row(
+            InlineKeyboardButton(
+                text=value,
+                callback_data=f"profile:{key}"
+            )
+        )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_lighting_type_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора типа освещения"""
+    builder = InlineKeyboardBuilder()
+    
+    for key, value in settings.LIGHTING_TYPES.items():
+        builder.row(
+            InlineKeyboardButton(
+                text=value,
+                callback_data=f"lighting:{key}"
+            )
+        )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_spot_diameter_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора диаметра точечных светильников"""
+    builder = InlineKeyboardBuilder()
+    
+    for diameter in settings.SPOT_LIGHT_DIAMETERS:
+        builder.row(
+            InlineKeyboardButton(
+                text=f"{diameter}мм",
+                callback_data=f"spot_diameter:{diameter}"
+            )
+        )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="📝 Другой",
+            callback_data="spot_diameter:custom"
+        )
+    )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_light_line_width_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора ширины световых линий"""
+    builder = InlineKeyboardBuilder()
+    
+    for width in settings.LIGHT_LINE_WIDTHS:
+        builder.row(
+            InlineKeyboardButton(
+                text=f"{width} см",
+                callback_data=f"light_width:{width}"
+            )
+        )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_corners_count_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора количества углов 90°"""
+    builder = InlineKeyboardBuilder()
+    
+    # Кнопки для количества углов
+    corners_options = [0, 1, 2, 3, 4]
+    for i in range(0, len(corners_options), 3):  # По 3 кнопки в ряд
+        row_buttons = []
+        for j in range(i, min(i + 3, len(corners_options))):
+            count = corners_options[j]
+            row_buttons.append(
+                InlineKeyboardButton(
+                    text=str(count),
+                    callback_data=f"corners:{count}"
+                )
+            )
+        builder.row(*row_buttons)
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="📝 Больше",
+            callback_data="corners:more"
+        )
+    )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_crossings_count_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора количества перекрестий"""
+    builder = InlineKeyboardBuilder()
+    
+    # Кнопки для количества перекрестий
+    crossing_options = [0, 1, 2, 3]
+    for i in range(0, len(crossing_options), 2):  # По 2 кнопки в ряд
+        row_buttons = []
+        for j in range(i, min(i + 2, len(crossing_options))):
+            count = crossing_options[j]
+            row_buttons.append(
+                InlineKeyboardButton(
+                    text=str(count),
+                    callback_data=f"crossings:{count}"
+                )
+            )
+        builder.row(*row_buttons)
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="📝 Больше",
+            callback_data="crossings:more"
+        )
+    )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_yes_no_keyboard(action: str) -> InlineKeyboardMarkup:
+    """Универсальная клавиатура Да/Нет"""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="✅ Да",
+            callback_data=f"{action}:yes"
+        ),
+        InlineKeyboardButton(
+            text="❌ Нет",
+            callback_data=f"{action}:no"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_curtain_niche_type_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора типа ниши под шторы"""
+    builder = InlineKeyboardBuilder()
+    
+    for key, value in settings.CURTAIN_NICHE_TYPES.items():
+        builder.row(
+            InlineKeyboardButton(
+                text=value,
+                callback_data=f"curtain_type:{key}"
+            )
+        )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_fastener_type_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура выбора типа крепежа"""
+    builder = InlineKeyboardBuilder()
+    
+    for key, value in settings.FASTENER_TYPES.items():
+        builder.row(
+            InlineKeyboardButton(
+                text=value,
+                callback_data=f"fastener:{key}"
+            )
+        )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="❌ Отмена",
+            callback_data="cancel"
+        )
+    )
+    
+    return builder.as_markup()
+
+
+def get_estimate_keyboard() -> InlineKeyboardMarkup:
+    """Клавиатура действий со сметой"""
+    builder = InlineKeyboardBuilder()
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="📄 Скачать PDF",
+            callback_data="estimate:pdf"
+        ),
+        InlineKeyboardButton(
+            text="📊 Скачать Excel",
+            callback_data="estimate:excel"
+        )
+    )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="🔄 Новый расчет",
+            callback_data="estimate:new"
+        ),
+        InlineKeyboardButton(
+            text="✏️ Редактировать",
+            callback_data="estimate:edit"
+        )
+    )
+    
+    builder.row(
+        InlineKeyboardButton(
+            text="🏠 Главное меню",
             callback_data="main_menu"
         )
     )

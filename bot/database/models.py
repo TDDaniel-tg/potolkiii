@@ -40,8 +40,42 @@ class Database:
                     measurements TEXT,
                     perimeter REAL,
                     area REAL,
+                    corners_count INTEGER DEFAULT 4,
                     recognized_data TEXT,
                     final_result TEXT,
+                    
+                    -- Этап 2: Профиль
+                    profile_type TEXT,
+                    profile_quantity REAL,
+                    dowel_nails_count INTEGER,
+                    
+                    -- Этап 3: Освещение
+                    lighting_type TEXT,
+                    lighting_data TEXT,  -- JSON с параметрами освещения
+                    
+                    -- Этап 4: Ниши под шторы
+                    curtain_niche_needed BOOLEAN DEFAULT FALSE,
+                    curtain_niche_type TEXT,
+                    curtain_niche_meters REAL,
+                    curtain_ends_count INTEGER,
+                    curtain_tape_meters REAL,
+                    curtain_brackets_count INTEGER,
+                    curtain_screws_count INTEGER,
+                    
+                    -- Этап 5: Дополнительные элементы
+                    timber_needed BOOLEAN DEFAULT FALSE,
+                    timber_meters REAL,
+                    timber_brackets_count INTEGER,
+                    
+                    -- Этап 6: Крепеж
+                    fastener_type TEXT,
+                    
+                    -- Итоговые расчеты
+                    total_hangers INTEGER,
+                    total_dowels INTEGER,
+                    total_screws INTEGER,
+                    glue_volume REAL,
+                    
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users (telegram_id)
                 )
@@ -54,6 +88,34 @@ class Database:
                 await db.execute("ALTER TABLE calculations ADD COLUMN measurements TEXT")
                 await db.execute("ALTER TABLE calculations ADD COLUMN perimeter REAL")
                 await db.execute("ALTER TABLE calculations ADD COLUMN area REAL")
+                await db.execute("ALTER TABLE calculations ADD COLUMN corners_count INTEGER DEFAULT 4")
+                
+                # Новые поля для натяжных потолков
+                await db.execute("ALTER TABLE calculations ADD COLUMN profile_type TEXT")
+                await db.execute("ALTER TABLE calculations ADD COLUMN profile_quantity REAL")
+                await db.execute("ALTER TABLE calculations ADD COLUMN dowel_nails_count INTEGER")
+                
+                await db.execute("ALTER TABLE calculations ADD COLUMN lighting_type TEXT")
+                await db.execute("ALTER TABLE calculations ADD COLUMN lighting_data TEXT")
+                
+                await db.execute("ALTER TABLE calculations ADD COLUMN curtain_niche_needed BOOLEAN DEFAULT FALSE")
+                await db.execute("ALTER TABLE calculations ADD COLUMN curtain_niche_type TEXT")
+                await db.execute("ALTER TABLE calculations ADD COLUMN curtain_niche_meters REAL")
+                await db.execute("ALTER TABLE calculations ADD COLUMN curtain_ends_count INTEGER")
+                await db.execute("ALTER TABLE calculations ADD COLUMN curtain_tape_meters REAL")
+                await db.execute("ALTER TABLE calculations ADD COLUMN curtain_brackets_count INTEGER")
+                await db.execute("ALTER TABLE calculations ADD COLUMN curtain_screws_count INTEGER")
+                
+                await db.execute("ALTER TABLE calculations ADD COLUMN timber_needed BOOLEAN DEFAULT FALSE")
+                await db.execute("ALTER TABLE calculations ADD COLUMN timber_meters REAL")
+                await db.execute("ALTER TABLE calculations ADD COLUMN timber_brackets_count INTEGER")
+                
+                await db.execute("ALTER TABLE calculations ADD COLUMN fastener_type TEXT")
+                
+                await db.execute("ALTER TABLE calculations ADD COLUMN total_hangers INTEGER")
+                await db.execute("ALTER TABLE calculations ADD COLUMN total_dowels INTEGER")
+                await db.execute("ALTER TABLE calculations ADD COLUMN total_screws INTEGER")
+                await db.execute("ALTER TABLE calculations ADD COLUMN glue_volume REAL")
             except:
                 # Колонки уже существуют
                 pass
@@ -150,16 +212,41 @@ class Database:
     async def save_calculation(self, user_id: int, calculation_type: str,
                              room_type: str = None, room_description: str = None,
                              measurements: list = None, perimeter: float = None,
-                             area: float = None, recognized_data: dict = None, 
-                             final_result: dict = None):
+                             area: float = None, corners_count: int = 4,
+                             recognized_data: dict = None, final_result: dict = None,
+                             # Этап 2: Профиль
+                             profile_type: str = None, profile_quantity: float = None,
+                             dowel_nails_count: int = None,
+                             # Этап 3: Освещение
+                             lighting_type: str = None, lighting_data: dict = None,
+                             # Этап 4: Ниши под шторы
+                             curtain_niche_needed: bool = False, curtain_niche_type: str = None,
+                             curtain_niche_meters: float = None, curtain_ends_count: int = None,
+                             curtain_tape_meters: float = None, curtain_brackets_count: int = None,
+                             curtain_screws_count: int = None,
+                             # Этап 5: Дополнительные элементы
+                             timber_needed: bool = False, timber_meters: float = None,
+                             timber_brackets_count: int = None,
+                             # Этап 6: Крепеж
+                             fastener_type: str = None,
+                             # Итоговые расчеты
+                             total_hangers: int = None, total_dowels: int = None,
+                             total_screws: int = None, glue_volume: float = None):
         """Сохраняет расчет в базу данных"""
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute("""
                 INSERT INTO calculations (
                     user_id, calculation_type, room_type, room_description,
-                    measurements, perimeter, area, recognized_data, final_result
+                    measurements, perimeter, area, corners_count, recognized_data, final_result,
+                    profile_type, profile_quantity, dowel_nails_count,
+                    lighting_type, lighting_data,
+                    curtain_niche_needed, curtain_niche_type, curtain_niche_meters,
+                    curtain_ends_count, curtain_tape_meters, curtain_brackets_count, curtain_screws_count,
+                    timber_needed, timber_meters, timber_brackets_count,
+                    fastener_type,
+                    total_hangers, total_dowels, total_screws, glue_volume
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 user_id, 
                 calculation_type,
@@ -168,8 +255,29 @@ class Database:
                 json.dumps(measurements, ensure_ascii=False) if measurements else None,
                 perimeter,
                 area,
+                corners_count,
                 json.dumps(recognized_data, ensure_ascii=False) if recognized_data else None,
-                json.dumps(final_result, ensure_ascii=False) if final_result else None
+                json.dumps(final_result, ensure_ascii=False) if final_result else None,
+                profile_type,
+                profile_quantity,
+                dowel_nails_count,
+                lighting_type,
+                json.dumps(lighting_data, ensure_ascii=False) if lighting_data else None,
+                curtain_niche_needed,
+                curtain_niche_type,
+                curtain_niche_meters,
+                curtain_ends_count,
+                curtain_tape_meters,
+                curtain_brackets_count,
+                curtain_screws_count,
+                timber_needed,
+                timber_meters,
+                timber_brackets_count,
+                fastener_type,
+                total_hangers,
+                total_dowels,
+                total_screws,
+                glue_volume
             ))
             await db.commit()
     
@@ -207,6 +315,12 @@ class Database:
                         calc['final_result'] = json.loads(calc['final_result'])
                     except:
                         calc['final_result'] = {}
+                        
+                if calc['lighting_data']:
+                    try:
+                        calc['lighting_data'] = json.loads(calc['lighting_data'])
+                    except:
+                        calc['lighting_data'] = {}
                         
                 calculations.append(calc)
             
