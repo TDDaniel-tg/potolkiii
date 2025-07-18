@@ -21,7 +21,7 @@ class Database:
                     telegram_id INTEGER UNIQUE NOT NULL,
                     username TEXT,
                     first_name TEXT,
-                    subscription_type TEXT DEFAULT 'free',
+                    subscription_type TEXT DEFAULT 'unlimited',
                     subscription_expires DATETIME,
                     daily_calculations INTEGER DEFAULT 0,
                     last_calculation_date DATE,
